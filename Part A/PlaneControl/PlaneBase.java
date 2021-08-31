@@ -1,4 +1,4 @@
-package Display;
+package PlaneControl;
 
 public abstract class PlaneBase implements Comparable<PlaneBase> {
 

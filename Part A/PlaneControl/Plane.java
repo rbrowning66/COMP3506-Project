@@ -1,4 +1,4 @@
-package Display;
+package PlaneControl;
 
 public class Plane extends PlaneBase {
 
