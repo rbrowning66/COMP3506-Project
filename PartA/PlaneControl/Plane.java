@@ -8,6 +8,7 @@ public class Plane extends PlaneBase {
 
     @Override
     public int compareTo(PlaneBase o) {
+        // Lexicographic ordering if departure time is the same here
         return 0;
     }
 
