@@ -13,12 +13,12 @@ class DisplayRandom extends DisplayRandomBase {
     /* Implement all the necessary methods here */
 
     // Implementation of count sort for every digit
-    private void countingSort(Plane[] data, int lengthData, int exp) {
+    private void countingSort(Plane[] data, int exp, int lengthData) {
         Plane[] countSorted = new Plane[data.length];
         Integer[] count = {0, 0 ,0 ,0, 0, 0, 0, 0, 0, 0};
         int i;
 
-        for (i = 0; i < lengthData; i++) {
+        for (i = 0; i < data.length; i++) {
             count[(getDepartureTimeUsable(data[i]) / exp) % 10]++;
         }
 
@@ -26,12 +26,12 @@ class DisplayRandom extends DisplayRandomBase {
             count[i] += count[i - 1];
         }
 
-        for (i = lengthData - 1; i >= 0; i--) {
+        for (i = data.length - 1; i >= 0; i--) {
             countSorted[count[(getDepartureTimeUsable(data[i]) / exp) % 10] - 1] = data[i];
             count[(getDepartureTimeUsable(data[i]) / exp) % 10]--;
         }
 
-        for (i = 0; i < lengthData; i++)
+        for (i = 0; i < data.length; i++)
             data[i] = countSorted[i];
     }
 
@@ -73,13 +73,17 @@ class DisplayRandom extends DisplayRandomBase {
             countingSort(data, exponential, data.length);
         }
 
-        // Sorting plane numbers lexicographically
+        // Sorting plane numbers lexicographically if needed
+        Plane[] planes = new Plane[1];
         for (int i = 1; i < data.length; i++) {
-            if (data[i - 1].compareTo(data[i]) < 0) {
-                data[i - 1] = data[i];
+            if (data[i - 1].getTime().compareTo(data[i].getTime()) == 0) {
+                if (data[i - 1].getPlaneNumber().substring(0, 2).compareTo(data[i].getPlaneNumber().substring(0, 2)) < 0) {
+                    planes[0] = data[i - 1];
+                    data[i - 1] = data[i];
+                    data[i] = planes[0];
+                }
             }
         }
-        setData(data);
         return data;
     }
 
