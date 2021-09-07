@@ -1,4 +1,5 @@
-package PlaneControl;/*
+package PlaneControl;
+/*
     General information about the priority:
     The priority must be given to the planes with the earliest estimated time.
     If two or more planes have the same estimated time ->

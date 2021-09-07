@@ -4,16 +4,25 @@ import PlaneControl.Plane;
 import PlaneControl.*;
 
 
-class DisplayRandom extends DisplayRandomBase {
-
-    public DisplayRandom(String[] csvLines) {
-        super(csvLines);
+class SortPlanes {
+    // Lexicographically sort plane numbers if matching departure times
+    public Plane[] sortPlaneNumbers(Plane[] data) {
+        Plane[] planes = new Plane[1];
+        for (int i = 1; i < data.length; i++) {
+            if (data[i - 1].getTime().compareTo(data[i].getTime()) == 0) {
+                if (data[i - 1].compareTo(data[i]) > 0) {
+                    planes[0] = data[i - 1];
+                    data[i - 1] = data[i];
+                    data[i] = planes[0];
+                }
+            }
+        }
+        return data;
     }
 
-    /* Implement all the necessary methods here */
 
     // Implementation of count sort for every digit
-    private void countingSort(Plane[] data, int exp, int lengthData) {
+    public void countingSort(Plane[] data, int exp) {
         Plane[] countSorted = new Plane[data.length];
         Integer[] count = {0, 0 ,0 ,0, 0, 0, 0, 0, 0, 0};
         int i;
@@ -35,8 +44,9 @@ class DisplayRandom extends DisplayRandomBase {
             data[i] = countSorted[i];
     }
 
+
     // Converts digital clock formatted time to number to be used in sorting
-    private int getDepartureTimeUsable(Plane plane) {
+    public int getDepartureTimeUsable(Plane plane) {
         String time = plane.getTime();
         String timeFormatted = time.replaceAll(":", "");
         Character firstNumber = time.charAt(0);
@@ -48,8 +58,9 @@ class DisplayRandom extends DisplayRandomBase {
         return Integer.parseInt(timeFormatted);
     }
 
+
     // Get's max departure time from data
-    private int getMaxValue(Plane[] data) {
+    public int getMaxValue(Plane[] data) {
         int maxDepartureTime = getDepartureTimeUsable(data[0]);
         for (int i = 1; i < data.length; i++) {
             if (getDepartureTimeUsable(data[i]) > maxDepartureTime) {
@@ -59,32 +70,33 @@ class DisplayRandom extends DisplayRandomBase {
         return maxDepartureTime;
     }
 
-
-    @Override
-    public Plane[] sort() {
-        Plane[] data = getData();
-
+    // Radix sort using other sorts
+    public Plane[] radixSort(Plane[] data) {
         // Sorting departure times using radix sort
         int max = getMaxValue(data);
 
         // Radix sort loop which does a count sort for each digit for most efficient and accurate
         // sorting
         for (int exponential = 1; max / exponential > 0; exponential *= 10) {
-            countingSort(data, exponential, data.length);
+            countingSort(data, exponential);
         }
 
-        // Sorting plane numbers lexicographically if needed
-        Plane[] planes = new Plane[1];
-        for (int i = 1; i < data.length; i++) {
-            if (data[i - 1].getTime().compareTo(data[i].getTime()) == 0) {
-                if (data[i - 1].getPlaneNumber().substring(0, 2).compareTo(data[i].getPlaneNumber().substring(0, 2)) < 0) {
-                    planes[0] = data[i - 1];
-                    data[i - 1] = data[i];
-                    data[i] = planes[0];
-                }
-            }
-        }
-        return data;
+        return sortPlaneNumbers(data);
+    }
+}
+
+class DisplayRandom extends DisplayRandomBase {
+
+    public DisplayRandom(String[] csvLines) {
+        super(csvLines);
+    }
+
+    /* Implement all the necessary methods here */
+    @Override
+    public Plane[] sort() {
+        Plane[] data = getData();
+        SortPlanes planeSort = new SortPlanes();
+        return planeSort.radixSort(data);
     }
 
 }
@@ -95,11 +107,17 @@ class DisplayPartiallySorted extends DisplayPartiallySortedBase {
         super(scheduleLines, extraLines);
     }
 
-    @Override
-    Plane[] sort() {
-        // Potentially could use a priority queue
-        return new Plane[0];
-    }
-
     /* Implement all the necessary methods here */
+    @Override
+    public Plane[] sort() {
+        // Use insertion sort here instead
+        SortPlanes planeSort = new SortPlanes();
+        Plane[] extraPlanes = getExtraPlanes();
+        Plane[] currentSchedule = getSchedule();
+        Plane[] newUnsortedSchedule = new Plane[extraPlanes.length + currentSchedule.length];
+        System.arraycopy(currentSchedule, 0, newUnsortedSchedule, 0, currentSchedule.length);
+        System.arraycopy(extraPlanes, 0, newUnsortedSchedule, currentSchedule.length,
+                extraPlanes.length);
+        return planeSort.radixSort(newUnsortedSchedule);
+    }
 }

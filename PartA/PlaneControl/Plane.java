@@ -12,9 +12,12 @@ public class Plane extends PlaneBase {
         String thisPlaneNumber = this.getPlaneNumber();
         String otherPlaneNumber = o.getPlaneNumber();
 
+        // Assume plane numbers will never be the same
+        return thisPlaneNumber.substring(0, 2).compareTo(otherPlaneNumber.substring(0, 2));
+
         // Loops through both plane's plane numbers, it can be assumed that both plane numbers are
         // the same length if this plane number is more than return 1. Vice versa return -1.
-        return thisPlaneNumber.compareTo(otherPlaneNumber);
+//        return thisPlaneNumber.compareTo(otherPlaneNumber);
 //        for (int k = 0; k < thisPlaneNumber.length(); k++) {
 //            if ((thisPlaneNumber.charAt(k) - otherPlaneNumber.charAt(k)) != 0) {
 //                if (thisPlaneNumber.charAt(k) > otherPlaneNumber.charAt(k)) {
