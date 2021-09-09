@@ -1,9 +1,5 @@
 package PlaneControl;
 
-import PlaneControl.Plane;
-import PlaneControl.*;
-
-
 class SortPlanes {
     // Lexicographically sort plane numbers if matching departure times
     public Plane[] sortPlaneNumbers(Plane[] data) {

@@ -7,6 +7,7 @@ public class Dispatcher extends DispatcherBase {
         this.landingAllocationsLinkedList = new LandingAllocationsLinkedList();
     }
 
+    /* Implement all the necessary methods of Dispatcher here */
     @Override
     public int size() {
         return landingAllocationsLinkedList.countNodes(landingAllocationsLinkedList.head);
@@ -29,7 +30,7 @@ public class Dispatcher extends DispatcherBase {
                 Node temp = landingAllocationsLinkedList.head;
                 landingAllocationsLinkedList.head = landingAllocationsLinkedList.head.next;
 
-                return landingAllocationsLinkedList.head.plane.getPlaneNumber();
+                return temp.plane.getPlaneNumber();
             }
         }
 
@@ -38,19 +39,26 @@ public class Dispatcher extends DispatcherBase {
 
     @Override
     public String emergencyLanding(String planeNumber) {
-        landingAllocationsLinkedList.deleteNode(planeNumber);
+        return landingAllocationsLinkedList.deleteNode(planeNumber);
     }
 
     @Override
     public boolean isPresent(String planeNumber) {
+        Node temp = landingAllocationsLinkedList.head;
+
+        while (temp != null) {
+            if (temp.plane.getPlaneNumber().equals(planeNumber)) {
+                return true;
+            }
+
+            temp = temp.next;
+        }
+
         return false;
     }
-
-    /* Implement all the necessary methods of Dispatcher here */
-    // Binary search tree possibly
-
 }
 
+/* Add any additional helper classes here */
 class Node {
     Plane plane;
     Node next;
@@ -68,7 +76,7 @@ class LandingAllocationsLinkedList {
             return 0;
         }
 
-        int count = 1;
+        int count = 0;
 
         while (rootNode != null) {
             rootNode = rootNode.next;
@@ -79,6 +87,11 @@ class LandingAllocationsLinkedList {
     }
 
     public void addNode(Plane plane) {
+        if (head == null) {
+            head = new Node(plane);
+            return;
+        }
+
         Node previousPlane = null;
         Node newPlane = new Node(plane);
         Node curPlane = head;
@@ -114,28 +127,28 @@ class LandingAllocationsLinkedList {
         }
 
         // Finding previous node
-        for (Plane plane = head.plane; headTemp != null && i < planeNumber)
+        Node cur = head;
+
+        while (cur != null && cur.next != null) {
+            if (cur.next.plane.getPlaneNumber().equals(planeNumber)) {
+                cur.next = cur.next.next;
+                return planeNumber;
+            }
+        }
+
+        return null;
     }
 
-    public LandingAllocationsLinkedList() {
-        LandingAllocationsLinkedList landingAllocationsLinkedList =
-                new LandingAllocationsLinkedList();
-        landingAllocationsLinkedList.head = null;
+    // Converts digital clock formatted time to number to be used in sorting
+    public int getDepartureTimeUsable(Plane plane) {
+        String time = plane.getTime();
+        String timeFormatted = time.replaceAll(":", "");
+        Character firstNumber = time.charAt(0);
+
+        if (firstNumber.equals('0')) {
+            timeFormatted = timeFormatted.substring(1);
+        }
+
+        return Integer.parseInt(timeFormatted);
     }
-}
-
-
-
-/* Add any additional helper classes here */
-// Converts digital clock formatted time to number to be used in sorting
-public int getDepartureTimeUsable(Plane plane) {
-    String time = plane.getTime();
-    String timeFormatted = time.replaceAll(":", "");
-    Character firstNumber = time.charAt(0);
-
-    if (firstNumber.equals('0')) {
-        timeFormatted = timeFormatted.substring(1);
-    }
-
-    return Integer.parseInt(timeFormatted);
 }
