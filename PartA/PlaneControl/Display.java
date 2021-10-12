@@ -1,4 +1,4 @@
-package PlaneControl;
+//package PlaneControl;
 
 class SortPlanes {
     // Lexicographically sort plane numbers if matching departure times
@@ -56,7 +56,7 @@ class SortPlanes {
 
 
     // Get's max departure time from data
-    public int getMaxValue(Plane[] data) {
+    public int getMaxPlaneDepartureTime(Plane[] data) {
         int maxDepartureTime = getDepartureTimeUsable(data[0]);
         for (int i = 1; i < data.length; i++) {
             if (getDepartureTimeUsable(data[i]) > maxDepartureTime) {
@@ -69,12 +69,13 @@ class SortPlanes {
     // Radix sort using other sorts
     public Plane[] radixSort(Plane[] data) {
         // Sorting departure times using radix sort
-        int max = getMaxValue(data);
+        int maxDepartureTime = getMaxPlaneDepartureTime(data);
 
+        int digitNo = 1;
         // Radix sort loop which does a count sort for each digit for most efficient and accurate
         // sorting
-        for (int exponential = 1; max / exponential > 0; exponential *= 10) {
-            countingSort(data, exponential);
+        for (int digit = 1; maxDepartureTime / digit > 0; digit *= 10) {
+            countingSort(data, digit);
         }
 
         return sortPlaneNumbers(data);
@@ -98,22 +99,52 @@ class DisplayRandom extends DisplayRandomBase {
 }
 
 class DisplayPartiallySorted extends DisplayPartiallySortedBase {
+    SortPlanes planeSort = new SortPlanes();
 
     public DisplayPartiallySorted(String[] scheduleLines, String[] extraLines) {
         super(scheduleLines, extraLines);
     }
 
     /* Implement all the necessary methods here */
+    private Plane[] sortExtraPlanesIntoCurrentSchedule(int scheduleLength,
+                                                       Plane[] unsortedSchedule) {
+        int planeCounter, previousPlaneCounter;
+        for (planeCounter = 1; planeCounter < scheduleLength; planeCounter++) {
+            Plane previousPlane = unsortedSchedule[planeCounter - 1];
+            Plane curPlane = unsortedSchedule[planeCounter];
+            previousPlaneCounter = planeCounter - 1;
+
+
+            while (previousPlaneCounter > -1 &&
+                    planeSort.getDepartureTimeUsable(unsortedSchedule[previousPlaneCounter])
+                            >= planeSort.getDepartureTimeUsable(curPlane)) {
+                if (planeSort.getDepartureTimeUsable(previousPlane) == planeSort.getDepartureTimeUsable(curPlane)) {
+                    if (previousPlane.compareTo(curPlane) > 0) {
+                        unsortedSchedule[previousPlaneCounter + 1] = unsortedSchedule[previousPlaneCounter];
+                        previousPlaneCounter = previousPlaneCounter - 1;
+                    }
+                } else {
+                    unsortedSchedule[previousPlaneCounter + 1] = unsortedSchedule[previousPlaneCounter];
+                    previousPlaneCounter = previousPlaneCounter - 1;
+                }
+            }
+            unsortedSchedule[previousPlaneCounter + 1] = curPlane;
+        }
+
+        return unsortedSchedule;
+    }
+
     @Override
     public Plane[] sort() {
         // Use insertion sort here instead
-        SortPlanes planeSort = new SortPlanes();
         Plane[] extraPlanes = getExtraPlanes();
         Plane[] currentSchedule = getSchedule();
         Plane[] newUnsortedSchedule = new Plane[extraPlanes.length + currentSchedule.length];
         System.arraycopy(currentSchedule, 0, newUnsortedSchedule, 0, currentSchedule.length);
         System.arraycopy(extraPlanes, 0, newUnsortedSchedule, currentSchedule.length,
                 extraPlanes.length);
-        return planeSort.radixSort(newUnsortedSchedule);
+
+        return sortExtraPlanesIntoCurrentSchedule(newUnsortedSchedule.length,
+                newUnsortedSchedule);
     }
 }
