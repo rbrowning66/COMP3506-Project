@@ -1,4 +1,4 @@
-//package PlaneControl;
+package PlaneControl;
 
 class SortPlanes {
     // Lexicographically sort plane numbers if matching departure times
