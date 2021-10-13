@@ -1,5 +1,6 @@
 package PassengerControl;
 
+import java.util.Arrays;
 import java.util.stream.IntStream;
 
 public class SecurityDB extends SecurityDBBase {
@@ -39,19 +40,27 @@ public class SecurityDB extends SecurityDBBase {
         //Using sum of character to ascii values using equation given in spec
         char[] charArray = key.toCharArray();
         int[] asciiCharArray = new int[charArray.length];
+        int[] hashFunctionArray = new int[charArray.length];
+
+        // Create array of ascii values from char array without has function
         int counter = 0;
 
-        // Loop through char array and use given hash function to calculate hashcode
         for (char c : charArray) {
-            asciiCharArray[counter] = 1 + IntStream.of(asciiCharArray).sum() + (int) c;
+            asciiCharArray[counter] = (int) c;
             counter++;
         }
 
-        int hash = IntStream.of(asciiCharArray).sum();
+        // Loop through char array and use given hash function to calculate hashcode
+        int hashCounter = 0;
 
-        // Apply compression function h(y) = y mod N, y = hash, N = size of hash table (prime
-        // number)
-        hash = hash % table_size;
+        for (char c : charArray) {
+            hashFunctionArray[hashCounter] =
+                    1 + IntStream.of(Arrays.copyOfRange(asciiCharArray, 0, hashCounter)).sum() + (int) c;
+            hashCounter++;
+        }
+
+        int hash = IntStream.of(hashFunctionArray).sum();
+
         return hash;
     }
 
@@ -63,6 +72,9 @@ public class SecurityDB extends SecurityDBBase {
     @Override
     public String get(String passportId) {
         int hashCode = calculateHashCode(passportId);
+        // Apply compression function h(y) = y mod N, y = hash, N = size of hash table (prime
+        // number)
+        hashCode = hashCode % table_size;
 
         while (hashTablePassengers[hashCode] != null) {
             if (hashTablePassengers[hashCode].passportID.equals(passportId)) {
@@ -80,35 +92,45 @@ public class SecurityDB extends SecurityDBBase {
         }
 
         int hashCode = calculateHashCode(passportId);
+        // Apply compression function h(y) = y mod N, y = hash, N = size of hash table (prime
+        // number)
+        hashCode = hashCode % table_size;
 
-        while(!hashTablePassengers[hashCode].passportID.equals(passportId)) {
+        while(!passportId.equals(hashTablePassengers[hashCode].passportID)) {
             hashCode = (1 + hashCode) % table_size;
         }
 
         hashTablePassengers[hashCode] = null;
 
         // Rehash keys
-        table_size--;
-        Passenger[] temp = new Passenger[table_size];
-        int count = 0;
-
-        while (hashTablePassengers[count] != null) {
-            temp[calculateHashCode(hashTablePassengers[count].passportID)] =
-                    new Passenger(hashTablePassengers[count].passportID,
-                            hashTablePassengers[count].passengerName);
-            count++;
+        for (hashCode = (hashCode + 1) % table_size; hashTablePassengers[hashCode] != null; hashCode = (hashCode + 1) % table_size) {
+            Passenger tempPassenger = hashTablePassengers[hashCode];
+            hashTablePassengers[hashCode] = null;
+            numPassengers--;
+            addPassenger(tempPassenger.passengerName, tempPassenger.passportID);
         }
 
-        hashTablePassengers = temp;
+        numPassengers--;
         return true;
     }
 
     @Override
     public boolean addPassenger(String name, String passportId) {
         int hashCode = calculateHashCode(passportId);
+        // Apply compression function h(y) = y mod N, y = hash, N = size of hash table (prime
+        // number)
+        hashCode = hashCode % table_size;
 
         while (hashTablePassengers[hashCode] != null) {
             if (hashTablePassengers[hashCode].passportID.equals(passportId)) {
+                if (!name.equals(hashTablePassengers[hashCode].passengerName)) {
+                    System.err.print("Suspicious behaviour");
+                }
+                hashTablePassengers[hashCode].useCounter++;
+
+                if (hashTablePassengers[hashCode].useCounter > 5) {
+                    System.err.print("Suspicious behaviour");
+                }
                 return false;
             }
             hashCode = (1 + hashCode) % table_size;
@@ -164,9 +186,9 @@ public class SecurityDB extends SecurityDBBase {
         assert db.count() == 3;
 
         // del
-//        db.remove("MKSD23");
-//        assert !db.contains("MKSD23");
-//        assert db.contains("Asb23f");
+        db.remove("MKSD23");
+        assert !db.contains("MKSD23");
+        assert db.contains("Asb23f");
 
         // hashcodes
         assert db.calculateHashCode("Asb23f") == 1717;
@@ -186,9 +208,11 @@ public class SecurityDB extends SecurityDBBase {
 class Passenger {
     public String passportID;
     public String passengerName;
+    public int useCounter;
 
     public Passenger(String passportID, String passengerName) {
         this.passportID = passportID;
         this.passengerName = passengerName;
+        this.useCounter = 0;
     }
 }
