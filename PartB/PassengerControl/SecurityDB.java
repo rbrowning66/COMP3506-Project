@@ -1,8 +1,5 @@
 package PassengerControl;
 
-import java.util.Arrays;
-import java.util.stream.IntStream;
-
 public class SecurityDB extends SecurityDBBase {
     /* Implement all the necessary methods here */
     Passenger[] hashTablePassengers;
@@ -35,41 +32,43 @@ public class SecurityDB extends SecurityDBBase {
         return number;
     }
 
-    @Override
     public int calculateHashCode(String key) {
         //Using sum of character to ascii values using equation given in spec
         char[] charArray = key.toCharArray();
         int[] asciiCharArray = new int[charArray.length];
         int[] hashFunctionArray = new int[charArray.length];
 
-        // Create array of ascii values from char array without has function
-        int counter = 0;
-
-        for (char c : charArray) {
-            asciiCharArray[counter] = (int) c;
-            counter++;
-        }
+//        // Create array of ascii values from char array without has function
+//        int counter = 0;
+//
+//        for (char c : charArray) {
+//            asciiCharArray[counter] = c;
+//            counter++;
+//        }
 
         // Loop through char array and use given hash function to calculate hashcode
-        int hashCounter = 0;
+//        int hashCounter = 0;
+        int sumAsciiArray = 0;
+        int sumHashArray = 0;
 
         for (char c : charArray) {
-            hashFunctionArray[hashCounter] =
-                    1 + IntStream.of(Arrays.copyOfRange(asciiCharArray, 0, hashCounter)).sum() + (int) c;
-            hashCounter++;
+//            hashFunctionArray[hashCounter] =
+//                    1 + IntStream.of(Arrays.copyOfRange(asciiCharArray, 0, hashCounter)).sum() + (int) c;
+            sumHashArray += 1 + sumAsciiArray + (int) c;
+            sumAsciiArray += c;
+//            hashFunctionArray[hashCounter] = 1 + sumAsciiArray + (int) c;
+//            asciiCharArray[hashCounter] = c;
+//            hashCounter++;
         }
 
-        int hash = IntStream.of(hashFunctionArray).sum();
-
-        return hash;
+//        return IntStream.of(hashFunctionArray).sum();
+        return sumHashArray;
     }
 
-    @Override
     public int size() {
         return table_size;
     }
 
-    @Override
     public String get(String passportId) {
         int hashCode = calculateHashCode(passportId);
         // Apply compression function h(y) = y mod N, y = hash, N = size of hash table (prime
@@ -85,7 +84,6 @@ public class SecurityDB extends SecurityDBBase {
         return null;
     }
 
-    @Override
     public boolean remove(String passportId) {
         if (!contains(passportId)) {
             return false;
@@ -114,7 +112,6 @@ public class SecurityDB extends SecurityDBBase {
         return true;
     }
 
-    @Override
     public boolean addPassenger(String name, String passportId) {
         int hashCode = calculateHashCode(passportId);
         // Apply compression function h(y) = y mod N, y = hash, N = size of hash table (prime
@@ -143,7 +140,7 @@ public class SecurityDB extends SecurityDBBase {
             numPassengers++;
             return true;
         } catch (ArrayIndexOutOfBoundsException e) {
-            table_size = SecurityDB.MAX_CAPACITY;
+            table_size = MAX_CAPACITY;
             Passenger[] temp = new Passenger[table_size];
             System.arraycopy(hashTablePassengers, 0, temp, 0, numPassengers);
             hashTablePassengers = temp;
@@ -153,12 +150,10 @@ public class SecurityDB extends SecurityDBBase {
         }
     }
 
-    @Override
     public int count() {
         return numPassengers;
     }
 
-    @Override
     public int getIndex(String passportId) {
         return calculateHashCode(passportId);
     }
@@ -199,8 +194,6 @@ public class SecurityDB extends SecurityDBBase {
         db.addPassenger("Robert Bekker", "Asb23f");
         // Should print a warning to stderr
     }
-
-
 }
 
 /* Add any additional helper classes here */
