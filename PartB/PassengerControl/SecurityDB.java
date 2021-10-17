@@ -37,31 +37,14 @@ public class SecurityDB extends SecurityDBBase {
         char[] charArray = key.toCharArray();
         int[] asciiCharArray = new int[charArray.length];
         int[] hashFunctionArray = new int[charArray.length];
-
-//        // Create array of ascii values from char array without has function
-//        int counter = 0;
-//
-//        for (char c : charArray) {
-//            asciiCharArray[counter] = c;
-//            counter++;
-//        }
-
-        // Loop through char array and use given hash function to calculate hashcode
-//        int hashCounter = 0;
         int sumAsciiArray = 0;
         int sumHashArray = 0;
 
         for (char c : charArray) {
-//            hashFunctionArray[hashCounter] =
-//                    1 + IntStream.of(Arrays.copyOfRange(asciiCharArray, 0, hashCounter)).sum() + (int) c;
             sumHashArray += 1 + sumAsciiArray + (int) c;
             sumAsciiArray += c;
-//            hashFunctionArray[hashCounter] = 1 + sumAsciiArray + (int) c;
-//            asciiCharArray[hashCounter] = c;
-//            hashCounter++;
         }
 
-//        return IntStream.of(hashFunctionArray).sum();
         return sumHashArray;
     }
 

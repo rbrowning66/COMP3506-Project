@@ -66,7 +66,7 @@ public class Airport extends AirportBase {
         }
         return true;
     }
-
+                                                                       git
     @Override
     public List<ShuttleBase> outgoingShuttles(TerminalBase terminal) {
         Terminal terminalToCheck = (Terminal) terminal;
@@ -83,7 +83,6 @@ public class Airport extends AirportBase {
         HashMap<Terminal, Terminal> previousTerminal = new HashMap<>();
 
         for (Terminal t : shuttleSystem) {
-//            previousTerminal.add(null);
             previousTerminal.put(t, null);
             terminalsVisited.put(t, false);
             distances.put(t, Integer.MAX_VALUE);
@@ -92,9 +91,6 @@ public class Airport extends AirportBase {
         terminalsVisited.put((Terminal) origin, true);
         distances.replace((Terminal) origin, Integer.MAX_VALUE, origin.getWaitingTime());
         adjacentListQueue.add(origin);
-
-        int totalEdgeWeights = 0;
-        int totalWaitTime = 0;
 
         while (adjacentListQueue.size() != 0) {
             Terminal t = (Terminal) adjacentListQueue.remove();
@@ -122,24 +118,6 @@ public class Airport extends AirportBase {
                     }
                 }
             }
-
-//            for (ShuttleBase shuttle : ((Terminal) origin).outgoingShuttles) {
-//                adjacentTerminals.add((Terminal) shuttle.getDestination());
-//                terminalsVisited.put((Terminal) shuttle.getDestination(), false);
-//            }
-//
-//            for (Terminal adjacentTerminal : adjacentTerminals) {
-//                TerminalBase n = adjacentListQueue.remove();
-//                if (!terminalsVisited.get(adjacentTerminal)) {
-//                    terminalsVisited.replace(adjacentTerminal, false, true);
-//                    adjacentListQueue.add(adjacentTerminal);
-//
-//                    // Check if terminal is the destination terminal
-//                    if (adjacentTerminal == destination) {
-//                        return new Path(adjacentListQueue, adjacentListQueue.size());
-//                    }
-//                }
-//            }
         }
 
         // If no path available from origin to destination
@@ -148,6 +126,108 @@ public class Airport extends AirportBase {
 
     @Override
     public Path findFastestPath(TerminalBase origin, TerminalBase destination) {
+        LinkedList<Integer> distances = new LinkedList<>();
+//        HashMap<Terminal, Integer> distances = new HashMap<>();
+//        PriorityQueue<Terminal> pathQueue = new PriorityQueue<Terminal>(this.shuttleSystem.size()
+//                , new Terminal());
+        HashSet<Terminal> pathQueue = new HashSet<>();
+//        HashMap<Terminal, Boolean> terminalsVisited = new HashMap<>();
+//        HashMap<Terminal, Terminal> previousTerminal = new HashMap<>();
+        LinkedList<TerminalBase> previousTerminal = new LinkedList<>();
+
+        for (Terminal t : this.shuttleSystem) {
+//            previousTerminal.put(t, null);
+//            distances.put(t, Integer.MAX_VALUE);
+        }
+
+//        terminalsVisited.put((Terminal) origin, true);
+//        distances.replace((Terminal) origin, Integer.MAX_VALUE, origin.getWaitingTime());
+        distances.add(0);
+        pathQueue.add((Terminal) origin);
+        previousTerminal.add((Terminal) origin);
+
+        while (pathQueue.size() != 0) {
+            Terminal minT = null;
+
+            for (int i = 0; i < this.shuttleSystem.size(); i++) {
+                if (minT == null) {
+                    minT = this.shuttleSystem.get(i);
+                } else {
+                    if (distances.get(i) < origin.getWaitingTime()) {
+                         minT = distances
+                    }
+//                    if (distances[0] < distances.get(distances.indexOf(minT)).getWaitingTime()) {
+//                        minT = t;
+//                    }
+                }
+            }
+
+//            terminalsVisited.replace(minT, false, true);
+            pathQueue.remove(minT);
+
+            for (int i = 0; i < this.shuttleSystem.get(this.shuttleSystem.indexOf(minT)).outgoingShuttles.size(); i++) {
+                Terminal terminalCheck =
+                        (Terminal) this.shuttleSystem.get(this.shuttleSystem.indexOf(minT)).outgoingShuttles.get(i).getDestination();
+                int newEdgeWeight =
+                        distances.get(distances.indexOf(minT)).getWaitingTime() + this.shuttleSystem.get(this.shuttleSystem.indexOf(minT)).outgoingShuttles.get(i).getTime();
+
+                if (newEdgeWeight < distances.get(distances.indexOf(terminalCheck)).getWaitingTime()) {
+//                    distances.replace(terminalCheck, Integer.MAX_VALUE, newEdgeWeight);
+                    distances.add(newEdgeWeight)
+                    previousTerminal.add(terminalCheck);
+                    pathQueue.add(terminalCheck);
+                }
+            }
+
+//            Terminal step = (Terminal) destination;
+
+//            if (previousTerminal.get(step) == null) {
+//                return null;
+//            }
+            if (previousTerminal.get(previousTerminal.indexOf(destination)) == null) {
+                return null;
+            }
+
+//            shortestPath.add(step);
+//
+//            while (previousTerminal.get(step) != null) {
+//                shortestPath.add(step);
+//                step = previousTerminal.get(step);
+//            }
+
+            return new Path(previousTerminal, distances.get(destination));
+//            pathQueue.remove(origin);
+//            int newWeight = 0;
+//
+//            for (int i = 0; i < this.shuttleSystem.get(this.shuttleSystem.indexOf(t)).outgoingShuttles.size(); i++) {
+//                Terminal terminalCheck =
+//                        (Terminal) this.shuttleSystem.get(this.shuttleSystem.indexOf(t)).outgoingShuttles.get(i).getDestination();
+//
+//                if (!terminalsVisited.get(terminalCheck)) {
+//                    terminalsVisited.replace(terminalCheck, false, true);
+//                    newWeight =
+//                            distances.get(t) + this.shuttleSystem.get(this.shuttleSystem.indexOf(t)).outgoingShuttles.get(i).getTime();
+//
+//                    if (newWeight < distances.get(terminalCheck)) {
+//                        distances.replace(terminalCheck, Integer.MAX_VALUE,
+//                                newWeight + distances.get(t));
+//                    }
+//
+//                    if (terminalCheck == destination) {
+//                        Terminal step = (Terminal) destination;
+//                        shortestPath.add(previousTerminal.get(step));
+//
+//                        while (previousTerminal.get(step) != null) {
+//                            shortestPath.add(step);
+//                            step = previousTerminal.get(step);
+//                        }
+//
+//                        return new Path(shortestPath, distances.get(destination));
+//                    }
+//                        pathQueue.add(terminalCheck);
+//                }
+//            }
+        }
         return null;
     }
 
@@ -157,31 +237,21 @@ public class Airport extends AirportBase {
         public List<ShuttleBase> outgoingShuttles;
 
         public void addShuttleToTerminal(int time, Terminal terminalDestination) {
-//            outgoingShuttles.put(terminalDestination, time);
-//            Terminal destinationTerminal = new Terminal(terminalDestination.getId(),
-//                    terminalDestination.getWaitingTime());
-//            destinationTerminal.addShuttleToTerminal(destinationTerminal.getWaitingTime(),
-//                    terminalDestination);
-//            Terminal destinationTerminal = new Terminal(terminalDestination.getId(),
-//                    terminalDestination.getWaitingTime());
             this.outgoingShuttles.add(new Shuttle(this, terminalDestination, time));
         }
 
         public void removeShuttleFromTerminal(TerminalBase terminalDestination) {
-            Terminal destination = (Terminal) terminalDestination;
             LinkedList<Terminal> adjacentTerminals = new LinkedList<>();
+
             for (ShuttleBase shuttle : this.outgoingShuttles) {
                 adjacentTerminals.add((Terminal) shuttle.getDestination());
             }
-//            this.outgoingShuttles.removeIf(shuttle -> shuttle.getDestination() ==
-//                    terminalDestination);
+
             for (Terminal t : adjacentTerminals) {
                 t.outgoingShuttles.removeIf(shuttleBase -> shuttleBase.getDestination() == terminalDestination);
             }
 
             this.outgoingShuttles.clear();
-//            adjacentTerminals.removeIf(terminal -> terminal.outgoingShuttles.)
-//            destination.outgoingShuttles.removeIf(shuttle -> shuttle.getDestination() == this);
         }
 
         /**
@@ -195,7 +265,6 @@ public class Airport extends AirportBase {
             super(id, waitingTime);
             this.outgoingShuttles = new ArrayList<>();
         }
-
     }
 
     static class Shuttle extends ShuttleBase {
@@ -212,8 +281,6 @@ public class Airport extends AirportBase {
         public Shuttle(TerminalBase origin, TerminalBase destination, int time) {
             super(origin, destination, time);
         }
-
-
     }
 
     /*
